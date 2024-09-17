@@ -29,7 +29,7 @@ class ContaCorrente(Conta):
     #getter
     @property
     def nome(self):
-        return self.nome
+        return self.__nome
 
     # setter
     @nome.setter
@@ -38,7 +38,7 @@ class ContaCorrente(Conta):
 
     @property
     def cpf(self):
-        return self.cpf
+        return self.__cpf
 
     @cpf.setter
     def cpf(self, cpf):
@@ -46,7 +46,7 @@ class ContaCorrente(Conta):
 
     @property
     def agencia(self):
-        return self.agencia
+        return self.__agencia
 
     @agencia.setter
     def agencia(self, agencia):
@@ -54,7 +54,7 @@ class ContaCorrente(Conta):
 
     @property
     def conta(self):
-        return self.conta
+        return self.__conta
 
     @conta.setter
     def conta(self, conta):
@@ -62,7 +62,7 @@ class ContaCorrente(Conta):
 
     @property
     def saldo(self):
-        return self.saldo
+        return self.__saldo
 
     @saldo.setter
     def saldo(self, saldo):
