@@ -17,3 +17,5 @@ if __name__ == "__main__":
 '''
 Completem o programa: o usuário vai informar o nome e o CPF, e o programa informa qual a agência, conta e saldo. E aí o usuário vai poder escolher se deseja fazer saque, depósito ou sair do programa
 '''
+
+'''herança multipla dé problema de manutenção de código, uma subclasse recebe métodos e atributos de duas superclasses'''
