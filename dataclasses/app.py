@@ -1,8 +1,10 @@
 from modulo import *
 
 if __name__ == "__main__":
-    usuario = Pessoa('Alex',39,1.72)
+    usuario = Pessoa('',0,0.0)
 
-    print(f'Nome: {usuario.nome}.')
-    print(f'Idade: {usuario.idade}.')
-    print(f'Altura: {usuario.altura} m.')
+    usuario.nome = input('Informe o nome: ')
+    usuario.idade = int(input('Informe a idade: '))
+    usuario.altura = float(input('Informe a altura: ').replace(',','.'))
+
+    print(str(usuario))
