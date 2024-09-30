@@ -1,0 +1,16 @@
+'''
+Para gerar o executável do app:
+pip install pyinstaller
+pip install pillow 
+flet pacl nome_arquivo.py --icon nome_icone.png
+'''
+
+import flet as ft 
+
+def main(page: ft.Page):
+    def calcular(e):
+        if not peso.vallue:
+            peso.error_text = 'Peço não pode ficar vazio'
+            page.update()
+        if not altura.value:
+            altura.error_text = 'Altura não pode ficar vazio'
