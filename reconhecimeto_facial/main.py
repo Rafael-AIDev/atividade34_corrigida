@@ -24,27 +24,27 @@ def captura(largura, altura):
     # Loop 
     while True:
         conectado, imagem = camera.read()
-        imagem_cinza = cv2.cvtColor(imagem,cv2.COLOR_BGR2GRAY)
+        imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
+        print(np.average(imagem_cinza))
         faces_detectadas = classificador.detectMultiScale (imagem_cinza, scaleFactor=1.5, minSize=(150,150))
 
         # identifica a geometria das faces
         for (x, y, l, a) in faces_detectadas:
             cv2.rectangle(imagem, (x, y), (x+l, y+a), (0, 0, 255), 2)
             regiao = imagem[y:y + a, x:x + 1]
-            regiao_cinza_olhos = cv2.cvtColor(regiao, cv2.COLOR_BGR2GRAY)
-            olhos_detectados = classificador_olho.detectMultiScale(regiao_cinza_olhos)
+            regiao_cinza_olho = cv2.cvtColor(regiao, cv2.COLOR_BGR2GRAY)
+            olhos_detectados = classificador_olho.detectMultiScale(regiao_cinza_olho)
 
             # identificar a geometria dos olhos
             for (ox, oy, ol, oa) in olhos_detectados:
                 cv2.rectangle(regiao, (ox, oy), (ox+ol, oy+oa), (0, 255,0), 2)
 
-                if cv2.waitKey(1) and 0xFF == ord('c'):
-                    if np.average(imagem_cinza) > 110:
-                        while amostra <= n_amostras:
-                            imagem_face = cv2.resize(imagem_cinza[y:y + a, x:x + 1], (largura, altura))
-                            cv2.iwrite(f'fotos/pessoa.{str(id)}.{str(amostra)}.jpg', imagem_face)# caminho da imagem
-                            print(f'[foto] {str(amostra)} capturada com sucesso.')
-                            amostra += 1
+                if np.average(imagem_cinza) > 110 and amostra <= n_amostras: 
+                    imagem_face = cv2.resize(imagem_cinza[y:y + a, x:x + 1], (largura, altura))
+                    cv2.imwrite(f'fotos/pessoas. {str(amostra)}.jpg', imagem_face)
+                    print(f'[foto] {str(amostra)} capturada com sucesso')
+                    amostra += 1
+# NOTE: Funciona com "c"
         cv2.imshow('Detectar faces', imagem)
         cv2.waitKey(1)
 
@@ -58,7 +58,38 @@ def captura(largura, altura):
     camera.realise()
     cv2.destroyAllWindows()
     # fim de função 
+def get_imagem_com_id():
+    caminhos = [os.path.join('fotos',f) for f in os.listdir('fotos')]
+    faces = []
+    ids = []
 
+    for caminho_imagem in caminhos:
+        imagem_face = cv2.cvtColor(cv2.imread(caminho_imagem), cv2.COLOR_BGR2GRAY)
+        id = int(os.path.split(caminho_imagem)[-1].split('.')[1])
+        ids.append(id)
+        faces.append(imagem_face)
+
+    return np.array(ids), faces
+
+def treinamento():
+    # cria os elementos de reconhecimento necessários
+    eigenface = cv2.face.EigenFaceRecognizer_create()
+    fisherface = cv2.face.FisherFaceRecognizer_create()
+    lbph = cv2.face.LBPHFaceRecognizer_create()
+
+    ids, faces = get_imagem_com_id()
+
+    #treinando o algoritmo do programa
+    print('Treinando...')
+    eigenface.train(faces, ids)
+    eigenface.write('classificadorEigen.yml')
+    fisherface.train(faces,ids)
+    fisherface.write('classificador.yml')
+    lbph.train(faces, ids)
+    lbph.write('classicadorLBPH.yml')
+
+    #finaliza o treinamento
+    print('Treinamento finalizado com sucesso!')
 # programa principal
 if __name__ == "__main__":
     # definir o tamanho da camera
@@ -69,6 +100,7 @@ if __name__ == "__main__":
     # menu
         print('0 - Sair do programa.')
         print('1 - Capturar a imagem do usuário.')
+        print('2 - Treinar sistema')
 
         opcao = input('Opção desejada: ')
 
@@ -79,16 +111,12 @@ if __name__ == "__main__":
             case '1':
                 captura(largura, altura)
                 continue
-
-# trecho de código para consertar é amtes do for (ox, oy) mesma identação, retirar o if cv2.waitKey
-'''
-if np.average(imagem_cinza) > 110 and amostra <= n_amostras: 
-    imagem_face = cv2.resize(imagem_cinza[y:y + a, x:x + 1], (largura, altura))
-    cv2.imwrite(f'fotos/pessoas. {str(amostra)}.jpg', imagem_face)
-    print(f'[foto] {str(ampstra)} capturada com sucesso)
-    amostra += 1
-# NOTE: Funciona com "c"
-'''
+            case '2':
+                treinamento()
+                continue
+            case _:
+                print('Opção inválida.')
+                continue
 
 
 
