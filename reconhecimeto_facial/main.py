@@ -30,8 +30,8 @@ def captura(largura, altura):
 
         # identifica a geometria das faces
         for (x, y, l, a) in faces_detectadas:
-            cv2.rectangle(imagem, (x, y), (x+l, y+a), (0, 0, 255), 2)
-            regiao = imagem[y:y + a, x:x + 1]
+            cv2.rectangle(imagem, (x,y), (x+l, y+a), (0,0,255), 2)
+            regiao = imagem[y:y + a, x:x + l]
             regiao_cinza_olho = cv2.cvtColor(regiao, cv2.COLOR_BGR2GRAY)
             olhos_detectados = classificador_olho.detectMultiScale(regiao_cinza_olho)
 
@@ -39,11 +39,11 @@ def captura(largura, altura):
             for (ox, oy, ol, oa) in olhos_detectados:
                 cv2.rectangle(regiao, (ox, oy), (ox+ol, oy+oa), (0, 255,0), 2)
 
-                if np.average(imagem_cinza) > 110 and amostra <= n_amostras: 
-                    imagem_face = cv2.resize(imagem_cinza[y:y + a, x:x + 1], (largura, altura))
-                    cv2.imwrite(f'fotos/pessoas. {str(amostra)}.jpg', imagem_face)
-                    print(f'[foto] {str(amostra)} capturada com sucesso')
-                    amostra += 1
+            if np.average(imagem_cinza) > 110 and amostra <= n_amostras: 
+                imagem_face = cv2.resize(imagem_cinza[y:y + a, x:x + 1], (largura, altura))
+                cv2.imwrite(f'fotos/pessoas. {str(amostra)}.jpg', imagem_face)
+                print(f'[foto] {str(amostra)} capturada com sucesso')
+                amostra += 1
 # NOTE: Funciona com "c"
         cv2.imshow('Detectar faces', imagem)
         cv2.waitKey(1)
@@ -90,6 +90,34 @@ def treinamento():
 
     #finaliza o treinamento
     print('Treinamento finalizado com sucesso!')
+
+def reconhecedor_eigenfaces(largura, altura):
+    detector_faces = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    reconhecedor = cv2.face.EigenFaceRecognizer_create()
+    reconhecedor.read('classificadorEigen.yml')
+    fonte = cv2.FONT_HERSHEY_COMPLEX_SMALL
+
+    camera = cv2.VideoCapture(0)
+
+    while True:
+        conectado, imagem = camera.read()
+        imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
+        faces_detectadas = detector_faces.detectMultiScale(imagem_cinza, scaleFactor=1.5, minSize=(30,30))
+
+        for (x, y, l, a) in faces_detectadas:
+            imagem_face = cv2.resize(imagem_cinza[y:y + a, x:x + l], (largura, altura))
+            cv2.rectangle(imagem, (x, y), (x+l,y+a), (0,0,255), 2)
+            id, confianca = reconhecedor.predict(imagem_face)
+            cv2.putText(imagem, str(id), (x,y+(a+30)), fonte, 2, (0,0,255))
+
+        cv2.imshow('Reconhecer faces', imagem)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    camera.release()
+    cv2.destroyAllWindows()
+
+
 # programa principal
 if __name__ == "__main__":
     # definir o tamanho da camera
@@ -101,6 +129,7 @@ if __name__ == "__main__":
         print('0 - Sair do programa.')
         print('1 - Capturar a imagem do usuário.')
         print('2 - Treinar sistema')
+        print('3 - Reconhecer faces')
 
         opcao = input('Opção desejada: ')
 
@@ -114,9 +143,25 @@ if __name__ == "__main__":
             case '2':
                 treinamento()
                 continue
+            case '3':
+                reconhecedor_eigenfaces(largura, altura)
+                continue
             case _:
                 print('Opção inválida.')
                 continue
 
 
 
+
+
+
+
+
+
+
+
+
+
+'''
+
+'''
